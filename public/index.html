@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Interactive Sandbox</title>
+        <title>Tanks</title>
         <style>
             body { margin: 0; overflow: hidden; }
         </style>
@@ -21,62 +21,26 @@
         <canvas id="canvas"></canvas>
         <script>
             let socket
-            
-            
+
             const fieldWidth = 20
             const fieldHeight = 20
 
             let cellSize
-            let fieldScreenWidth
-            let fieldScreenHeight
-            let fieldCenterShiftX
-            let fieldCenterShiftY
-
-            const gameObjects = {
-                'tank1': {
-                    'x': 0,
-                    'y': 0,
-                    'dx': 1,
-                    'dy': 0,
-                    'c': 'red',
-                    't': 't'
-                },
-                'tank2': { 
-                    'x': fieldWidth - 1,
-                    'y': 0,
-                    'dx': -1,
-                    'dy': 0,
-                    'c': 'green',
-                    't': 't'
-                },
-                'tank3': { 
-                    'x': fieldWidth - 1,
-                    'y': fieldHeight - 1,
-                    'dx': -1,
-                    'dy': 0,
-                    'c': 'blue',
-                    't': 't'
-                },
-                'tank4': { 
-                    'x': 0,
-                    'y': fieldHeight - 1,
-                    'dx': 1,
-                    'dy': 0,
-                    'c': 'yellow',
-                    't': 't'
-                },
-                'bullet1': { 
-                    'x': fieldWidth / 2,
-                    'y': fieldHeight / 2,
-                    'dx': 1,
-                    'dy': 0,
-                    'c': 'white',
-                    't': 'd'
-                }
-            }
+            let fieldScreenWidth, fieldScreenHeight
+            let fieldCenterShiftX, fieldCenterShiftY
+            
+            let gameObjects = { }
             
             function setup(ctx, w, h) {
                 socket = io()
+                socket.on('upd', msg => {
+                    gameObjects = Object.assign({}, gameObjects, msg);
+                });
+                socket.on('dstr', msg => {
+                    for (let i = 0; i < msg.length; ++i) {
+                        delete gameObjects[msg[i]]
+                    }
+                });
                 
                 cellSize = Math.min(w / fieldWidth, h / fieldHeight)
                 fieldScreenWidth = fieldWidth * cellSize
@@ -127,7 +91,6 @@
                     case ' ':
                         socket.emit('cmd', key);
                         break
-                      
                 }
             }
         </script>
